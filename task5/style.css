@@ -1,0 +1,30 @@
+body {
+  margin: 0px;
+  padding: 0px;
+  box-sizing: border-box;
+}
+body > header {
+  height: 20vh;
+  box-sizing: inherit;
+}
+body > .mainContainer {
+  max-height: 80vh;
+  box-sizing: border-box;
+  overflow: auto;
+  position: relative;
+}
+body > .mainContainer > #spreadsheetCanvas {
+  overflow: auto;
+  width: -moz-fit-content;
+  width: fit-content;
+}
+body > .mainContainer > #cellInput {
+  position: absolute;
+  display: none;
+  padding: 0;
+  padding-left: 5px;
+  margin: 0;
+  border: 3px solid #023E8A;
+  outline: none;
+  box-sizing: border-box;
+}/*# sourceMappingURL=style.css.map */

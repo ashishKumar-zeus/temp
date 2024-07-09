@@ -1,0 +1,52 @@
+$color_dk_1 : #03045E;
+$color_dk_2 : #023E8A;
+$color_dk_3 : #0077B6;
+$color_dk_4 : #0096C7;
+$color_lg_5 : #00B4D8;
+$color_lg_4 : #48CAE4;
+$color_lg_3 : #90E0EF;
+$color_lg_2 : #ADE8F4;
+$color_lg_1 : #CAF0F8;
+
+@mixin resetCss {
+    margin: 0px;
+    padding: 0px;
+    box-sizing: border-box;
+}
+
+body {
+    @include resetCss();
+
+    >header {
+        height: 20vh;
+        // border: 2px solid black;
+        box-sizing: inherit;
+    }
+
+    >.mainContainer {
+        max-height: 80vh;
+        // border: 2px solid red;
+        box-sizing: border-box;
+        overflow: auto;
+        position: relative;
+
+
+        >#spreadsheetCanvas {
+            // border: 1px solid #000;
+            overflow: auto;
+            width: fit-content;
+        }
+
+        >#cellInput {
+            position: absolute;
+            display: none;
+            padding: 0;
+            padding-left: 5px;
+            margin: 0;
+            border: 3px solid #023E8A;
+            outline: none;
+            box-sizing: border-box;
+        }
+    }
+}
+
