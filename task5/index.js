@@ -1,241 +1,188 @@
-const canvas = document.getElementById('spreadsheetCanvas');
-const ctx = canvas.getContext('2d');
 
-const cellInput = document.getElementById('cellInput');
-const div = document.querySelector('.mainContainer');
+class Heading {
+    constructor(x, y, width = 100, height = 30, isSelected = false, data = '') {
 
-
-class cell {
-    constructor(value) {
-        this.isSelected = false;
-        this.value = value
+        this.x = x;
+        this.y = y;
+        this.width = width;
+        this.height = height;
+        this.isSelected = isSelected;
+        this.data = data;
+        this.next = null;
+        this.prev = null;
     }
 }
 
 
-const CELL_HEIGHT = 30;
-const CELL_WIDTH = 100;
-const ROWS = 100;
-const COLS = 100;
+class DoublyLinkedList {
+    constructor(count, value, width, height, isHLL) {
+        this.head = null;
+        this.tail = null;
+        this.width = width;
+        this.height = height;
 
-
-let columnWidths = Array(COLS).fill(100);
-let data = Array(ROWS).fill().map(() => Array(COLS).fill(new cell("hello")));
-
-
-function drawGrid() {
-    ctx.strokeStyle = '#000000';
-    ctx.lineWidth = 1;
-
-    let x = 0;
-    for (let j = 0; j <= COLS; j++) {
-        ctx.beginPath();
-        ctx.moveTo(x, 0);
-        ctx.lineTo(x, ROWS * CELL_HEIGHT);
-        ctx.stroke();
-        if (j < COLS) x += columnWidths[j];
+        this.initializeList(count, value, width, height, isHLL);
     }
 
-    for (let i = 0; i <= ROWS; i++) {
-        ctx.beginPath();
-        ctx.moveTo(0, i * CELL_HEIGHT);
-        ctx.lineTo(canvas.width, i * CELL_HEIGHT);
-        ctx.stroke();
-    }
-}
+    initializeList(count, value, width, height, isHLL) {
+        let x = 0;
+        let y = 0;
 
-function drawCellContents() {
-    ctx.font = '14px Arial';
-    ctx.textAlign = 'left';
-    ctx.textBaseline = 'middle';
-    ctx.fillStyle = '#000';
+        if (isHLL) {
 
-    let x = 0;
-    for (let j = 0; j < COLS; j++) {
-        for (let i = 0; i < ROWS; i++) {
-            ctx.fillText(data[i][j].value, x + 5, i * CELL_HEIGHT + CELL_HEIGHT / 2);
-        }
-        x += columnWidths[j];
-    }
-}
-
-
-
-
-
-function render() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    drawGrid();
-    drawCellContents();
-}
-
-
-
-function getColumnNumber(x) {
-    x+=div.scrollLeft;
-    let accumulatedWidth = 0;
-    for (let i = 0; i < COLS; i++) {
-        accumulatedWidth += columnWidths[i];
-        if (x < accumulatedWidth) return i;
-    }
-    return -1;
-}
-
-function getColumnLeftPosition(col) {
-    let x = 0;
-    for (let i = 0; i < col; i++) {
-      x += columnWidths[i];
-    }
-    return x;
-  }
-
-function getRow(y) {
-    y+=div.scrollTop;
-    return Math.floor(y / CELL_HEIGHT);
-  }
-  
-  function getRowTopPosition(yInd) {
-    return yInd * CELL_HEIGHT + div.scrollTop;
-  }
-  function getRowBottomPosition(yInd) {
-    return yInd * CELL_HEIGHT + CELL_HEIGHT + div.scrollTop;
-  }
-
-  
-  function getColumnRightPosition(col) {
-    let x = 0;
-    for (let i = 0; i < col + 1; i++) {
-      x += columnWidths[i];
-    }
-    return x+div.scrollLeft;
-  }
-
-let isSelecting = false;
-let startYTop = -1;
-let startXTop = -1;
-let startYBottom = -1;
-let startXBottom = -1;
-let endYTop = -1;
-let endXTop = -1;
-let endYBottom = -1;
-let endXBottom = -1;
-
-
-function getTopLeftBottomRight(xPos, yPos) {
-    const topLeftPosVertical = Math.floor(yPos / CELL_HEIGHT) * CELL_HEIGHT;
-    const bottomRightPosVertical = Math.floor(yPos / CELL_HEIGHT) * CELL_HEIGHT + CELL_HEIGHT;
-
-    let topLeftPosHorizontal = 0;
-    let bottomRightPosHorizontal = 0;
-
-    console.log(xPos);
-
-    let accumulatedWidth = 0;
-    for (let i = 0; xPos > accumulatedWidth; i++) {
-        accumulatedWidth += columnWidths[i];
-        if (xPos <= accumulatedWidth) {
-            bottomRightPosHorizontal = accumulatedWidth;
-            topLeftPosHorizontal = accumulatedWidth - columnWidths[i];
-        }
-    }
-    // console.log(topLeftPosHorizontal, topLeftPosVertical, bottomRightPosHorizontal, bottomRightPosVertical)
-    return [topLeftPosHorizontal, topLeftPosVertical, bottomRightPosHorizontal, bottomRightPosVertical];
-}
-
-canvas.addEventListener('mousedown', (e) => {
-    isSelecting = true;
-    console.log("true")
-
-    const xPos = e.clientX - canvas.offsetLeft;
-    const yPos = e.clientY - canvas.offsetTop;
-
-    [startXTop, startYTop, startXBottom, startYBottom] = getTopLeftBottomRight(xPos, yPos);
-
-})
-
-canvas.addEventListener("mouseup", (e) => {
-    isSelecting = false;
-
-})
-
-function makeRect(startX, startY, endX, endY) {
-    console.log(startX, startY, endX, endY)
-    render();
-    ctx.fillStyle = 'rgba(0, 100, 255, 0.3)';
-    ctx.fillRect(startX, startY, endX - startX, endY - startY);
-    ctx.strokeStyle = 'rgb(0, 100, 255)';
-    ctx.lineWidth = 2;
-    ctx.strokeRect(startX, startY, endX - startX, endY - startY);
-
-}
-
-canvas.addEventListener('mousemove', (e) => {
-    if (isSelecting) {
-
-        const div = document.querySelector('.mainContainer');
-        const xPos = e.clientX - canvas.offsetLeft + div.scrollLeft;
-        const yPos = e.clientY - canvas.offsetTop + div.scrollTop;
-
-        if (Math.abs(yPos - startYBottom) > 10 || Math.abs(xPos - startXBottom) > 30) {
-            [endXTop, endYTop, endXBottom, endYBottom] = getTopLeftBottomRight(xPos, yPos);
-            // console.log("here")
-
-            // console.log(endXTop,endYTop,endXBottom,endYBottom)
-
-            startX = Math.min(startXTop, endXTop);
-            startY = Math.min(startYTop, endYTop);
-            endX = Math.max(startXBottom, endXBottom);
-            endY = Math.max(startYBottom, endYBottom);
-
-            makeRect(startX, startY, endX, endY);
-
-        }
-
-
-    }
-})
-
-
-canvas.addEventListener('click', (e) => {
-    if (!isSelecting) {
-
-        const div = document.querySelector('.mainContainer');
-        isSelecting = false;
-
-        console.log(div.scrollLeft, div.scrollTop)
-
-        const xPos = e.clientX - canvas.offsetLeft;
-        const yPos = e.clientY - canvas.offsetTop;
-        console.log(xPos, yPos)
-
-
-        // console.log(xPos, yPos)
-        const xInd = getColumnNumber(xPos);
-        const yInd = getRow(yPos);
-
-        // console.log(xInd, yInd)
-
-        const cellTop = getRowTopPosition(yInd);
-        const cellLeft = getColumnLeftPosition(xInd);
-        if (!isSelecting) {
-
-            cellInput.style.display = "block";
-            cellInput.style.top = cellTop + 'px';
-            cellInput.style.left = cellLeft + 'px';
-            cellInput.style.height = CELL_HEIGHT + 'px';
-            cellInput.style.width = (columnWidths[getColumnNumber(xPos) - 1]) + 'px';
-            cellInput.value = data[yInd][xInd];
-            data[yInd][xInd] = "";
-            render();
-            cellInput.focus();
-
-            cellInput.onblur = () => {
-                data[yInd][xInd] = cellInput.value;
-                cellInput.style.display = "none";
-                render();
+            for (let i = 0; i < count; i++) {
+                // console.log(x,y,width,height,false,value)
+                this.addElement(x, y, width, height, false, value);
+                x += width;
             }
+        }
+        else {
+
+            for (let i = 0; i < count; i++) {
+                this.addElement(x, y, width, height, false, value);
+                y += height;
+            }
+        }
+
+        this.printList()
+    }
+
+    // Add an element to the end of the list
+    addElement(x, y, width, height, isSelected, data) {
+        const newNode = new Heading(x, y, width, height, isSelected, data);
+        if (this.head === null) {
+            this.head = newNode;
+            this.tail = newNode;
+        } else {
+            this.tail.next = newNode;
+            newNode.prev = this.tail;
+            this.tail = newNode;
+        }
+    }
+
+    // Print the list
+    printList() {
+        let current = this.head;
+        const elements = [];
+        while (current) {
+            console.log(current)
+
+            elements.push(current);
+            current = current.next;
+
+        }
+
+    }
+
+}
+
+let HLL = new DoublyLinkedList(20, "column", 100, 30, true);
+let VLL = new DoublyLinkedList(20, "row", 50, 30, false);
+
+
+class Cell {
+    constructor(x, y, height, width) {
+        this.x = x;
+        this.y = y;
+        this.height = height;
+        this.width = width;
+        this.right = null;
+        this.bottom = null;
+        this.top = null;
+        this.left = null;
+    }
+}
+
+class Grid {
+    constructor(rows, cols, cellHeight, cellWidth) {
+        this.head = null;
+        this.rows = rows;
+        this.cols = cols;
+        this.cellHeight = cellHeight;
+        this.cellWidth = cellWidth;
+        this.createGrid();
+        this.printCol();
+        console.log("printrow")
+        this.printRow()
+
+    }
+
+    // Create the grid with the specified rows and columns
+    createGrid() {
+        let previousRowStart = null;
+        let previousCell = null;
+
+        for (let i = 0; i < this.rows; i++) {
+            let currentRowStart = null;
+            previousCell = null;
+            let previousRowElement = previousRowStart;
+            for (let j = 0; j < this.cols; j++) {
+                
+                const newCell = new Cell(j * this.cellWidth, i * this.cellHeight, this.cellHeight, this.cellWidth);
+
+                if (!this.head) {
+                    this.head = newCell;
+                }
+
+                if (!currentRowStart) {
+                    currentRowStart = newCell;
+                }
+
+                if (previousCell) {
+                    previousCell.right = newCell;
+                    newCell.left = previousCell;
+                }
+
+                if (previousRowStart) {
+                    let temp = previousRowElement;
+                    // for (let k = 0; k < j; k++) {
+                    //     temp = temp.right;
+                    // }
+                    temp.bottom = newCell;
+                    newCell.top = temp;
+                    previousRowElement = previousRowElement.right;
+                }
+
+                previousCell = newCell;
+            }
+            previousRowStart = currentRowStart;
+        }
+    }
+
+    // Print the grid
+    printRow() {
+        let rowStart = this.head;
+        while (rowStart) {
+            let current = rowStart;
+            let row = [];
+            while (current) {
+                row.push(`[${current.x},${current.y}]`);
+                current = current.right;
+            }
+            console.log(row.join(' -> '));
+            rowStart = rowStart.bottom;
+        }
+    }
+    printCol(){
+        let colstart = this.head;
+        while (colstart){
+            let current = colstart
+            let col = []
+            while (current) {
+                col.push(`[${current.x},${current.y}]`);
+                current = current.bottom;
+            }
+            console.log(col.join(' -> '));
+            colstart = colstart.right;
 
         }
     }
-});
-render();
+    
+
+}
+
+
+
+
+
+const MLL = new Grid(20, 10, 30, 100);
