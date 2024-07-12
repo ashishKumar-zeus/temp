@@ -1,3 +1,73 @@
+const horizontalCanvas = document.getElementById('horizontalCanvas')
+const verticalCanvas = document.getElementById('verticalCanvas')
+const mainCanvas = document.getElementById('spreadsheetCanvas')
+const verticalBar = document.getElementById('verticalBar')
+const horizontalBar = document.getElementById('horizontalBar')
+const fullCanvas = document.getElementById('fullCanvas')
+const horizontalScroll = document.getElementById('horizontalScroll')
+
+
+horizontalBar.style.left = `0px`
+
+
+let isScrolling = false;
+
+horizontalBar.addEventListener('mousedown', (e) => {
+
+    console.log("mousedown")
+
+    e.preventDefault();
+
+    let isHorizontalScrolling = true;
+    let startMouseX = e.offsetX;
+
+
+    let prevXpos = 
+
+
+    fullCanvas.addEventListener('mousemove', (e) => {
+
+
+        if (isHorizontalScrolling) {
+
+            let currMouseX = e.offsetX;
+            let diffX = currMouseX-startMouseX;
+
+
+            console.log(Number(horizontalBar.style.left.substring(0,horizontalBar.style.left.length - 2 )))
+
+
+            if(Number(horizontalBar.style.left.substring(0,horizontalBar.style.left.length - 2 )) >= 0   ){
+                horizontalBar.style.left = `${Number(horizontalBar.style.left.substring(0,horizontalBar.style.left.length - 2 )) + diffX}px`
+            }
+
+
+            if(diffX + horizontalBar.clientWidth >= horizontalScroll.clientWidth){
+                //if scrollbar reaches end
+                horizontalBar.style.width = Math.floor(horizontalBar.clientWidth/2)+'px'; 
+                // console.log(horizontalScroll.clientWidth/2)
+                // console.log(horizontalBar.style.left)
+                horizontalBar.style.left = Math.floor(horizontalScroll.clientWidth/2)+'px' ;
+                // console.log(horizontalBar.style.left)
+
+            }
+            startMouseX = currMouseX;
+
+        }
+
+
+
+    })
+
+
+    fullCanvas.addEventListener('mouseup', (e) => {
+        isHorizontalScrolling = false;
+
+    })
+
+})
+
+
 
 class Heading {
     constructor(x, y, width = 100, height = 30, isSelected = false, data = '') {
